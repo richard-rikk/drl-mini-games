@@ -1,3 +1,2 @@
 # __init__.py
-from .model       import valami
-from .tensorboard import valami2
+from .dqn           import DqnModel, MINIBATCH_SIZE, AGGREGATE_STATS_EVERY
