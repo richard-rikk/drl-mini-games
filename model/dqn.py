@@ -157,6 +157,7 @@ class DqnModel():
     
     # Queries main network for Q values given current observation space (environment state)
     # This will tell us which actions should we take
+
     def get_best_q_value(self, state):
         return np.argmax(self.main_model.predict(state))
               

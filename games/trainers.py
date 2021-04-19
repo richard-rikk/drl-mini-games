@@ -3,29 +3,34 @@ import numpy as np
 import model
 import gym
 
+from .constants import CAR_GAME, LAKE_GAME, INPUT_DIMS
 
-MIN_EPSILON            = 0.001      #The epsilon can not be lower than this number
-EPSILON_DECAY          = 0.99985    #Epsilon will be equal to epsilon * EPSILON_DECAY
+
+MIN_EPSILON    = 0.001       #The epsilon can not be lower than this number
+EPSILON_DECAY  = 0.99985     #Epsilon will be equal to epsilon * EPSILON_DECAY
+
 
 
 class DQNTrainer():
-    def __init__(self,inputDims:tuple, gameType:str) -> None:
-        self.epsilon        = 1
-        self.inputDims      = inputDims
-        self.current_state  = None
-        self.last_move      = None
-        self.gametype       = gameType
-        self.env            = gym.make(self.gametype)
-        self.model          = model.DqnModel(inputDims, self.env.action_space.n)
-        self.rewards        = []
+    def __init__(self,gameType:str) -> None:
+        self.epsilon          = 1
+        self.inputDims        = INPUT_DIMS[gameType]
+        self.current_state    = None
+        self.last_move        = None
+        self.gametype         = gameType
+        self.env              = gym.make(self.gametype)
+        self.model            = model.DqnModel(self.inputDims, self.env.action_space.n)
+        self.rewards          = []
 
-    def train_model(self) -> None:
+    def train_model(self, steps=10_000) -> None:
+        print(f'Currently trained model ID: {self.model.modelID}')
+        print(f'Current;y trained model location : {self.model.modelLoc}')
         print(f'Log file will be updated every {model.AGGREGATE_STATS_EVERY} steps!')
 
         self.env.reset()
         stepsSinceLastUpdate = 0
         self.current_state, reward, done, _ = self.env.step(self.env.action_space.sample()) # take a random action
-        for i in tqdm(range(10_000)):
+        for i in tqdm(range(steps)):
             #The agent steps this sets the last_move
             self.step()
 
@@ -55,10 +60,7 @@ class DQNTrainer():
         #Make a decision based on epsilon
         if np.random.random() > self.epsilon:
             # Get the best action from our model
-            if self.gametype == 'FrozenLake-v0':
-                action = self.model.get_best_q_value(np.array([self.current_state]))
-            else:
-                action = self.model.get_best_q_value(self.current_state)
+            action = self.model.get_best_q_value(np.array([self.current_state]))
         else:
             # Get random action
             action = np.random.randint(0, self.env.action_space.n)

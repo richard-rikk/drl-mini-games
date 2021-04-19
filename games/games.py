@@ -12,29 +12,22 @@ class Game:
         self.model      = model.DqnModel(modelID=modelID)
         self.env        = gym.make(gameType)
         self.gameType   = gameType
-        self.transformMapping = {CAR_GAME : self.convertInputCar, LAKE_GAME : self.convertInputLake}
+        self.curr_state = None
             
-    def play(self,setps=25):
+    def play(self,steps=25):
         self.env.reset()
-        state, _, _, _ = self.env.step(self.env.action_space.sample()) # take a random action
-        for _ in range(setps):
+        self.curr_state, _, _, _ = self.env.step(self.env.action_space.sample()) # take a random action
+        for _ in range(steps):
             self.env.render()
-            move = self.transformMapping[self.gameType](state)
-            _, _, done, _= self.env.step(self.model.get_best_q_value(move))
+            move = self.model.get_best_q_value(np.array([self.curr_state]))
+            self.curr_state, _, done, _= self.env.step(move)
+            
             print(move)
-            time.sleep(1)
 
             #If finished a game start over.
             if done:
                 self.env.reset()
         self.env.close()
-
-    #Converts the given input so it matches the requiremnts of the Lake type of networks
-    def convertInputLake(self, state:int) -> np.ndarray:
-        return np.array([state])
-    
-    def convertInputCar(self, state:np.ndarray) -> np.ndarray:
-        return state
 
 
 
