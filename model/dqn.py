@@ -47,7 +47,6 @@ class DqnModel():
         self.target_model.set_weights(self.main_model.get_weights())
 
         #An array which stores the steps for training it elements : (current_state, action, reward, new_current_state, done) tupels
-        #One state has the following structure : state = (vision, memory, task) tupels
         self.replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
         #Custom tensorboard objects
@@ -156,9 +155,9 @@ class DqnModel():
         self.target_update_counter += 1
     
     # Queries main network for Q values given current observation space (environment state)
-    # This will tell us which actions should we take
+    # This will tell us which actions should we take (get_best_q_value)
 
-    def get_best_q_value(self, state):
+    def choose_action(self, state:np.ndarray) -> int:
         return np.argmax(self.main_model.predict(state))
               
     
