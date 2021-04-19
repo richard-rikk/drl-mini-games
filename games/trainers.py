@@ -7,7 +7,7 @@ from .constants import CAR_GAME, LAKE_GAME, INPUT_DIMS
 
 
 MIN_EPSILON    = 0.001       #The epsilon can not be lower than this number
-EPSILON_DECAY  = 0.99985     #Epsilon will be equal to epsilon * EPSILON_DECAY
+EPSILON_DECAY  = 0.999985    #Epsilon will be equal to epsilon * EPSILON_DECAY
 
 class Trainer():
     def __init__(self,gameType:str) -> None:
@@ -104,7 +104,6 @@ class ACTrainer(Trainer):
             self.step()
 
             state, reward, done, _ = self.env.step(self.last_move) # take a random action
-            
             self.model.train(self.current_state, self.last_move, reward, state, done)
             
             self.current_state = state
