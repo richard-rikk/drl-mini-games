@@ -6,7 +6,7 @@ from typing                      import Any
 
 from tensorflow.python.keras.backend import update
 from .modifiedTb                 import ModifiedTensorBoard
-from tensorflow.keras.layers     import LSTM, Dense, Dropout, Input
+from tensorflow.keras.layers     import LSTM, Dense, Dropout, Input, Flatten
 from tensorflow.keras            import activations
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models     import Model, save_model, load_model
@@ -74,6 +74,8 @@ class DqnModel():
 
         layer = Dense(16, activation=activations.relu)(layer)
         layer = Dropout(0.1)(layer)
+
+        layer = Flatten()(layer)
 
         #The output layer we need linear because we are interested in all q values.
         layer = Dense(self.actionCnt, activation=activations.linear)(layer)

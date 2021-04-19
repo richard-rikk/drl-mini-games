@@ -7,7 +7,7 @@ import tensorflow.keras.backend as K
 
 from typing                      import Tuple, Any
 from .modifiedTb                 import ModifiedTensorBoard
-from tensorflow.keras.layers     import LSTM, Dense, Dropout, Input
+from tensorflow.keras.layers     import LSTM, Dense, Dropout, Input, Flatten
 from tensorflow.keras            import activations
 from tensorflow.keras.models     import Model, save_model, load_model
 from tensorflow.keras.optimizers import Adam
@@ -62,6 +62,8 @@ class AcModel():
 
         layer = LSTM(32, return_sequences=False)(layer)
         layer = Dropout(0.1)(layer)
+
+        layer = Flatten()(layer)
 
         layer = Dense(32, activation=activations.relu)(layer)
         layer = Dropout(0.1)(layer)
