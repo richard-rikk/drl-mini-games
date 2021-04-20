@@ -1,4 +1,6 @@
 #Own files
+cpy/
+build/
 help.txt
 logs/
 .vscode/
