@@ -63,8 +63,6 @@ class AcModel():
         layer = LSTM(32, return_sequences=False)(layer)
         layer = Dropout(0.1)(layer)
 
-        layer = Flatten()(layer)
-
         layer = Dense(32, activation=activations.relu)(layer)
         layer = Dropout(0.1)(layer)
 

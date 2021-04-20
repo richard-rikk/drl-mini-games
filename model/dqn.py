@@ -20,7 +20,7 @@ LEARNING_RATE          = 0.01       #The model learning rate (alfa)
 REPLAY_MEMORY_SIZE     = 25_000     #How many last steps to keep for model training
 MIN_REPLAY_MEMORY_SIZE = 1_000      #Minimum number of steps in a memory to start training
 MINIBATCH_SIZE         = 64         #The number of steps which we give the agent in one fit
-UPDATE_TARGET_EVERY    = 500        #The number of steps after we train the target_model 
+UPDATE_TARGET_EVERY    = 100        #The number of episodes after we train the target_model 
 DISCOUNT               = 0.99       #How much should we consider the future rewards.
 AGGREGATE_STATS_EVERY  = 1000       #After how many steps we want to update the tensorboard for the given model
 
@@ -55,9 +55,6 @@ class DqnModel():
         # Used to count when to update target network with main network's weights
         self.target_update_counter = 0
 
-        #How many steps did we take
-        self.stepCnt = 0
-
         os.mkdir(self.modelLoc)
 
     def __buildNetwork(self) -> Any:
@@ -74,8 +71,6 @@ class DqnModel():
 
         layer = Dense(16, activation=activations.relu)(layer)
         layer = Dropout(0.1)(layer)
-
-        layer = Flatten()(layer)
 
         #The output layer we need linear because we are interested in all q values.
         layer = Dense(self.actionCnt, activation=activations.linear)(layer)
@@ -99,7 +94,7 @@ class DqnModel():
         self.replay_memory.append(transition)
     
     #Trains the main_model every step and updates the targetet_model if needed
-    def train(self, stepCnt:int) -> None:
+    def train(self, isDone:bool) -> None:
         # Start training only if certain number of samples is already saved
         if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
             return
@@ -137,7 +132,6 @@ class DqnModel():
             y.append(current_qs)
         
         # Fit on all samples as one batch, log only on terminal state
-        update =  self.stepCnt > AGGREGATE_STATS_EVERY
         self.main_model.fit(x=[np.array(X)], 
                             y=np.array(y), 
                             batch_size=MINIBATCH_SIZE, 
@@ -145,16 +139,14 @@ class DqnModel():
                             shuffle=False,
                             )
 
-        if update:
-            self.stepCnt = 0
 
         # If counter reaches set value, update target network with weights of main network
         if self.target_update_counter > UPDATE_TARGET_EVERY:
             self.target_model.set_weights(self.main_model.get_weights())
             self.target_update_counter = 0
         
-        self.stepCnt += 1
-        self.target_update_counter += 1
+        if isDone:
+            self.target_update_counter += 1
     
     # Queries main network for Q values given current observation space (environment state)
     # This will tell us which actions should we take (get_best_q_value)
