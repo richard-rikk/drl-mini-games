@@ -17,6 +17,7 @@ class Trainer():
         self.gametype         = gameType
         self.env              = gym.make(self.gametype)
         self.rewards          = []
+        self.episode_step_cnt = 0
     
     def show_log_info(self) -> None:
         print(f'Currently trained model ID: {self.model.modelID}')
@@ -31,7 +32,11 @@ class Trainer():
         average_reward = np.mean(self.rewards)
         min_reward = min(self.rewards)
         max_reward = max(self.rewards)
-        self.model.tensorboard.update_stats(reward_avg=average_reward, reward_min=min_reward, reward_max=max_reward, epsilon=epsilon)
+        self.model.tensorboard.update_stats(reward_avg=average_reward,
+                                            reward_min=min_reward, 
+                                            reward_max=max_reward,
+                                            step_cnt=self.episode_step_cnt, 
+                                            epsilon=epsilon)
            
 
 
@@ -42,35 +47,30 @@ class DQNTrainer(Trainer):
         self.model    = model.DqnModel(self.inputDims, self.env.action_space.n)
         
 
-    def train_model(self, steps=10_000) -> None:
+    def train_model(self, episode=10_000) -> None:
         self.show_log_info()
 
-        self.env.reset()
-        stepsSinceLastUpdate = 0
-        self.current_state, reward, done, _ = self.env.step(self.env.action_space.sample()) # take a random action
-        for i in tqdm(range(steps)):
-            #The agent steps this sets the last_move
-            self.step()
+        for _ in tqdm(range(episode)):
+            done                   = False
+            self.rewards           = []
+            self.current_state     = self.env.reset()
+            self.episode_step_cnt  = 0
+            while not done:
+                self.step()
 
-            state, reward, done, _ = self.env.step(self.last_move) # take a random action
-            self.model.update_replay_memory((self.current_state, self.last_move, reward, state, done))
+                state, reward, done, _ = self.env.step(self.last_move) # take a random action
+                self.model.update_replay_memory((self.current_state, self.last_move, reward, state, done))
+
+                self.model.train(isDone=done)
+                self.rewards.append(reward)
+                self.episode_step_cnt += 1
+                self.current_state = state
             
-            self.model.train(i)
-            
-            self.current_state = state
-            self.rewards.append(reward)
-
-            stepsSinceLastUpdate += 1
-            if stepsSinceLastUpdate >= model.AGGREGATE_STATS_EVERY:
-                stepsSinceLastUpdate = 0
-                self.update_model(self.epsilon)
-
-            #If finished a game start over.
-            if done:
-                self.env.reset()         
+            self.update_model(self.epsilon)
 
         self.env.close()
         self.model.save()
+
     
     def step(self) -> None:
         #Make a decision based on epsilon
@@ -93,31 +93,26 @@ class ACTrainer(Trainer):
         super().__init__(gameType=gameType)
         self.model   = model.AcModel(self.inputDims, self.env.action_space.n)
     
-    def train_model(self, steps=10_000) -> None:
+    def train_model(self, episode=10_000) -> None:
         self.show_log_info()
 
-        self.env.reset()
-        stepsSinceLastUpdate = 0
-        self.current_state, reward, done, _ = self.env.step(self.env.action_space.sample()) # take a random action
-        for i in tqdm(range(steps)):
-            #The agent steps this sets the last_move
-            self.step()
+        for _ in tqdm(range(episode)):
+            done                   = False
+            self.rewards           = []
+            self.current_state     = self.env.reset()
+            self.episode_step_cnt  = 0
+            while not done:
+                self.step()
 
-            state, reward, done, _ = self.env.step(self.last_move) # take a random action
-            self.model.train(self.current_state, self.last_move, reward, state, done)
+                state, reward, done, _ = self.env.step(self.last_move) # take a random action
+
+                self.model.train(self.current_state, self.last_move, reward, state, done)
+                self.rewards.append(reward)
+                self.episode_step_cnt += 1
+                self.current_state = state
             
-            self.current_state = state
-            self.rewards.append(reward)
-
-            stepsSinceLastUpdate += 1
-            if stepsSinceLastUpdate >= model.AGGREGATE_STATS_EVERY:
-                stepsSinceLastUpdate = 0
-                self.update_model()
-
-            #If finished a game start over.
-            if done:
-                self.env.reset()         
-
+            self.update_model()
+        
         self.env.close()
         self.model.save()
     
