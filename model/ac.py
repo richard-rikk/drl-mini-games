@@ -54,16 +54,22 @@ class AcModel():
 
         input = Input(shape=self.inDims)
 
-        layer = LSTM(128, return_sequences=True)(input)
+        layer = LSTM(1024, return_sequences=True)(input)
         layer = Dropout(0.1)(layer)
 
-        layer = LSTM(64, return_sequences=True)(layer)
+        layer = LSTM(512, return_sequences=True)(layer)
         layer = Dropout(0.1)(layer)
 
-        layer = LSTM(32, return_sequences=False)(layer)
+        layer = LSTM(258, return_sequences=False)(layer)
         layer = Dropout(0.1)(layer)
 
-        layer = Dense(32, activation=activations.relu)(layer)
+        layer = Dense(1024, activation=activations.relu)(layer)
+        layer = Dropout(0.1)(layer)
+
+        layer = Dense(512, activation=activations.relu)(layer)
+        layer = Dropout(0.1)(layer)
+
+        layer = Dense(258, activation=activations.relu)(layer)
         layer = Dropout(0.1)(layer)
 
         #------------------------------------------------These are the outputs of the  models------------------------------------------------
