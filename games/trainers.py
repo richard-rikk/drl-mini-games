@@ -30,11 +30,11 @@ class Trainer():
             return
         
         average_reward = np.mean(self.rewards)
-        min_reward = min(self.rewards)
         max_reward = max(self.rewards)
+        sum_reward = np.sum(self.rewards)
         self.model.tensorboard.update_stats(reward_avg=average_reward,
-                                            reward_min=min_reward, 
-                                            reward_max=max_reward,
+                                            reward_max=max_reward, 
+                                            reward_sum=sum_reward,
                                             step_cnt=self.episode_step_cnt, 
                                             epsilon=epsilon)
            
