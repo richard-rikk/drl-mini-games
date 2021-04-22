@@ -59,7 +59,7 @@ def model_compile(model:ACv2) -> None:
     pass
 
 def model_save(model: ACv2, idx:int) -> None:
-    save_model(model,  model.modelLoc+f"acv2-{idx}.h5",   save_format='h5')
+    save_model(model,  model.modelLoc+f"acv2-{idx}.tf",   save_format='tf')
 
 def model_load(location:str) -> ACv2:
     return load_model(location)
@@ -76,12 +76,12 @@ def model_train(model:ACv2, prev_state:np.ndarray, action:int, reward:float, cur
 
     with tf.GradientTape() as tape:
         prev_state_value, probs = model(prev_state)
-        curr_state_value, probs = model(curr_state)
+        curr_state_value, _     = model(curr_state)
 
         prev_state_value = tf.squeeze(prev_state_value)     #The values has to be a 1d array with 1 number
         prev_state_value = tf.squeeze(curr_state_value)
 
-        action_probs = tfp.distributions.Categorical(probs=probs)
+        action_probs = tfp.distributions.Categorical(probs=tf.squeeze(probs))
         log_prob     = action_probs.log_prob(action)
 
         delta       = reward * curr_state_value * (1 - int(done)) - prev_state_value

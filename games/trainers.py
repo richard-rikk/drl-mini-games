@@ -165,10 +165,12 @@ class ACv2Trainer(Trainer):
             state = tf.reshape(state, (1, self.dimx, self.dimy))
         
         _, probs = self.model(state)
-        action_probabilities = tfp.distributions.Categorical(probs=probs)
+        action_probabilities = tfp.distributions.Categorical(probs=tf.squeeze(probs))
         action = action_probabilities.sample()
+
+        print(action)
     
-        self.last_move = int(action.numpy()[0])      # Dont forget to remove the batch dimension
+        self.last_move = int(action.numpy())      # Dont forget to remove the batch dimension
 
     
 

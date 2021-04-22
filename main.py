@@ -24,7 +24,7 @@ if not os.path.exists(path):
 #g.play(steps=25)
 
 trainer = games.ACv2Trainer(games.LAKE_GAME)
-trainer.train_model(3)
+trainer.train_model(1000)
 
 
 
