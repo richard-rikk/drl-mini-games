@@ -1,11 +1,15 @@
 #FrozenLake-v0 is considered "solved" when the agent obtains an average reward of at least 0.78 over 100 consecutive episodes.
 #MountainCar-v0 is considered "solved" when the agent obtains an average reward of at least -110.0 over 100 consecutive episodes.
 import games
- 
+import os
 
+path = 'saved_models/'
 
-trainer = games.DQNTrainer(games.LAKE_GAME)
-trainer.train_model(1000)
+if not os.path.exists(path):
+    os.makedirs(path)
+
+#trainer = games.DQNTrainer(games.LAKE_GAME)
+#trainer.train_model(1)
 
 #trainer = games.DQNTrainer(games.LAKE_GAME)
 #trainer.train_model(30_000) #(1 hour)
@@ -18,5 +22,9 @@ trainer.train_model(1000)
 
 #g = games.Game(games.LAKE_GAME, 1618852313, modelType=1)
 #g.play(steps=25)
+
+trainer = games.ACv2Trainer(games.LAKE_GAME)
+trainer.train_model(3)
+
 
 
