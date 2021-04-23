@@ -55,6 +55,9 @@ class ACv2(Model):
 
         return v, pi
 
+    def choose_action(self, state):
+        _, pi = self.call(state)
+
 def model_compile(model:ACv2) -> None:
     pass
 
