@@ -164,13 +164,10 @@ class ACv2Trainer(Trainer):
         if self.gametype == LAKE_GAME:
             state = tf.reshape(state, (1, self.dimx, self.dimy))
         
-        _, probs = self.model(state)
+        _, probs             = self.model(state)
         action_probabilities = tfp.distributions.Categorical(probs=tf.squeeze(probs))
-        action = action_probabilities.sample()
-
-        print(action)
-    
-        self.last_move = int(action.numpy())      # Dont forget to remove the batch dimension
+        action               = action_probabilities.sample()
+        self.last_move       = int(action.numpy())      # Dont forget to remove the batch dimension
 
     
 

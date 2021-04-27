@@ -20,11 +20,11 @@ if not os.path.exists(path):
 #trainer = games.ACTrainer(games.LAKE_GAME)
 #trainer.train_model(100) #(1:30 min)
 
-#g = games.Game(games.LAKE_GAME, 1618852313, modelType=1)
-#g.play(steps=25)
+g = games.Gamev2(games.LAKE_GAME, 1619185164, subdir='acv2-668.tf')
+print(g.evaulate(episodes=100))
 
-trainer = games.ACv2Trainer(games.LAKE_GAME)
-trainer.train_model(1000)
+#trainer = games.ACv2Trainer(games.LAKE_GAME)
+#trainer.train_model(4000)
 
 
 
