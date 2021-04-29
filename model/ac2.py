@@ -67,7 +67,7 @@ def model_save(model: ACv2, idx:int) -> None:
 def model_load(location:str) -> ACv2:
     return load_model(location)
 
-def model_train(model:ACv2, prev_state:np.ndarray, action:int, reward:float, curr_state:np.ndarray, done:bool) -> None :
+def model_train(model:ACv2, prev_state:np.ndarray, action:int, reward:float, curr_state:np.ndarray, done:bool) -> tuple :
     prev_state = tf.convert_to_tensor([prev_state], dtype=tf.float32)
     curr_state = tf.convert_to_tensor([curr_state], dtype=tf.float32)
     reward     = tf.convert_to_tensor([reward], dtype=tf.float32)
@@ -94,3 +94,5 @@ def model_train(model:ACv2, prev_state:np.ndarray, action:int, reward:float, cur
     
     gradient = tape.gradient(total_loss, model.trainable_variables)
     model.optimizer.apply_gradients(zip(gradient, model.trainable_variables))
+
+    return actor_loss, critic_loss, total_loss
