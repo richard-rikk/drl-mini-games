@@ -18,13 +18,13 @@ if not os.path.exists(path):
 #print(f'Score: {g.evaulate(100)}')
 
 #trainer = games.ACTrainer(games.LAKE_GAME)
-#trainer.train_model(100) #(1:30 min)
+#trainer.train_model(10) #(1:30 min)
 
-g = games.Gamev2(games.LAKE_GAME, 1619185164, subdir='acv2-668.tf')
-print(g.evaulate(episodes=100))
+#g = games.Gamev2(games.LAKE_GAME, 1619185164, subdir='acv2-668.tf')
+#print(g.evaulate(episodes=100))
 
-#trainer = games.ACv2Trainer(games.LAKE_GAME)
-#trainer.train_model(4000)
+trainer = games.ACv2Trainer(games.LAKE_GAME)
+trainer.train_model(1)
 
 
 

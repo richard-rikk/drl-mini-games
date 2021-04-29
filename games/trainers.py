@@ -30,7 +30,7 @@ class Trainer():
         print(f'Current;y trained model location : {self.model.modelLoc}')
     
     #It will update the informations on the tensorboard and save the model if necessary    
-    def update_model(self, epsilon=0) -> None:
+    def update_model(self, epsilon=0, actor_loss_=0, critic_loss_=0, total_loss_=0) -> None:
         if len(self.rewards) == 0:
             return
         
@@ -40,7 +40,10 @@ class Trainer():
         self.model.tensorboard.update_stats(reward_avg=average_reward,
                                             reward_max=max_reward, 
                                             reward_sum=sum_reward,
-                                            step_cnt=self.episode_step_cnt, 
+                                            step_cnt=self.episode_step_cnt,
+                                            actor_loss=actor_loss_,
+                                            critic_loss=critic_loss_,
+                                            total_loss=total_loss_,
                                             epsilon=epsilon)
            
 
@@ -110,7 +113,6 @@ class ACTrainer(Trainer):
                 self.step()
 
                 state, reward, done, _ = self.env.step(self.last_move)
-
                 self.model.train(self.current_state, self.last_move, reward, state, done)
                 self.rewards.append(reward)
                 self.episode_step_cnt += 1
@@ -140,17 +142,23 @@ class ACv2Trainer(Trainer):
             self.rewards           = []
             self.current_state     = self.env.reset()
             self.episode_step_cnt  = 0
+            actor_loss             = 0
+            critic_loss            = 0
+            total_loss             = 0
             while not done:
                 self.step()
 
                 state, reward, done, _ = self.env.step(self.last_move)
-
-                model.model_train(self.model, self.current_state, self.last_move, reward, state, done)
+                a_loss, c_loss, t_loss = model.model_train(self.model, self.current_state, self.last_move, reward, state, done)
                 self.rewards.append(reward)
                 self.episode_step_cnt += 1
                 self.current_state = state
+
+                actor_loss += float(a_loss.numpy())
+                critic_loss+= float(c_loss.numpy())
+                total_loss += float(t_loss.numpy())          
             
-            self.update_model()
+            self.update_model(actor_loss_=actor_loss, critic_loss_=critic_loss, total_loss_=total_loss)
 
             episode_avg_reward = np.mean(self.rewards)
             if self.max_reward < episode_avg_reward:
