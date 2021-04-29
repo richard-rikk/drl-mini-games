@@ -30,14 +30,14 @@ class Trainer():
         print(f'Current;y trained model location : {self.model.modelLoc}')
     
     #It will update the informations on the tensorboard and save the model if necessary    
-    def update_model(self, epsilon=0, actor_loss_=0, critic_loss_=0, total_loss_=0) -> None:
+    def update_model(self, epsilon=0, avg=0, actor_loss_=0, critic_loss_=0, total_loss_=0) -> None:
         if len(self.rewards) == 0:
             return
         
         average_reward = np.mean(self.rewards)
         max_reward = max(self.rewards)
         sum_reward = np.sum(self.rewards)
-        self.model.tensorboard.update_stats(reward_avg=average_reward,
+        self.model.tensorboard.update_stats(reward_avg=avg,
                                             reward_max=max_reward, 
                                             reward_sum=sum_reward,
                                             step_cnt=self.episode_step_cnt,
@@ -136,15 +136,15 @@ class ACv2Trainer(Trainer):
     
     def train_model(self, episode=10_000) -> None:
         self.show_log_info()
-
+        self.rewards           = []
         for i in tqdm(range(episode)):
             done                   = False
-            self.rewards           = []
             self.current_state     = self.env.reset()
             self.episode_step_cnt  = 0
             actor_loss             = 0
             critic_loss            = 0
             total_loss             = 0
+            score = 0
             while not done:
                 self.step()
 
@@ -154,15 +154,17 @@ class ACv2Trainer(Trainer):
                 self.episode_step_cnt += 1
                 self.current_state = state
 
+                score      += reward
                 actor_loss += float(a_loss.numpy())
                 critic_loss+= float(c_loss.numpy())
                 total_loss += float(t_loss.numpy())          
             
-            self.update_model(actor_loss_=actor_loss, critic_loss_=critic_loss, total_loss_=total_loss)
+            self.rewards.append(score)
+            avg_score = np.mean(self.rewards[-100:])
+            self.update_model(avg=avg_score, actor_loss_=actor_loss, critic_loss_=critic_loss, total_loss_=total_loss)
 
-            episode_avg_reward = np.mean(self.rewards)
-            if self.max_reward < episode_avg_reward:
-                self.max_reward = episode_avg_reward
+            if self.max_reward < avg_score:
+                self.max_reward = avg_score
                 model.model_save(self.model, i)
         
         self.env.close()
