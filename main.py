@@ -8,8 +8,8 @@ path = 'saved_models/'
 if not os.path.exists(path):
     os.makedirs(path)
 
-#trainer = games.DQNTrainer(games.LAKE_GAME)
-#trainer.train_model(1)
+trainer = games.DQNTrainer(games.CAR_GAME)
+trainer.train_model(2500)
 
 #trainer = games.DQNTrainer(games.LAKE_GAME)
 #trainer.train_model(30_000) #(1 hour)
@@ -23,8 +23,8 @@ if not os.path.exists(path):
 #g = games.Gamev2(games.LAKE_GAME, 1619185164, subdir='acv2-668.tf')
 #print(g.evaulate(episodes=100))
 
-trainer = games.ACv2Trainer(games.LAKE_GAME)
-trainer.train_model(1)
+#trainer = games.ACv2Trainer(games.LAKE_GAME)
+#trainer.train_model(1)
 
 
 

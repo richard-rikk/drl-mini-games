@@ -34,7 +34,6 @@ class Trainer():
         if len(self.rewards) == 0:
             return
         
-        average_reward = np.mean(self.rewards)
         max_reward = max(self.rewards)
         sum_reward = np.sum(self.rewards)
         self.model.tensorboard.update_stats(reward_avg=avg,
@@ -63,6 +62,7 @@ class DQNTrainer(Trainer):
             self.rewards           = []
             self.current_state     = self.env.reset()
             self.episode_step_cnt  = 0
+            score                  = 0
             while not done:
                 self.step()
 
@@ -70,11 +70,12 @@ class DQNTrainer(Trainer):
                 self.model.update_replay_memory((self.current_state, self.last_move, reward, state, done))
 
                 self.model.train(isDone=done)
-                self.rewards.append(reward)
                 self.episode_step_cnt += 1
                 self.current_state = state
-             
-            self.update_model(self.epsilon)
+                score += reward
+            
+            avg_score = np.mean(self.rewards[-100:])
+            self.update_model(epsilon=self.epsilon, avg=avg_score)
 
         self.env.close()
         self.model.save()
@@ -150,7 +151,6 @@ class ACv2Trainer(Trainer):
 
                 state, reward, done, _ = self.env.step(self.last_move)
                 a_loss, c_loss, t_loss = model.model_train(self.model, self.current_state, self.last_move, reward, state, done)
-                self.rewards.append(reward)
                 self.episode_step_cnt += 1
                 self.current_state = state
 
