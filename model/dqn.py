@@ -60,7 +60,7 @@ class DqnModel():
     def __buildNetwork(self) -> Any:
         input = Input(shape=self.inDims)
 
-        layer = LSTM(1024, return_sequences=False)(input)
+        layer = Dense(1024, activation=activations.relu)(input)
         layer = Dropout(0.1)(layer)
 
         layer = Dense(512, activation=activations.relu)(layer)

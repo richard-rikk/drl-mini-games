@@ -36,7 +36,6 @@ class Trainer():
         
         max_reward = max(self.rewards)
         sum_reward = np.sum(self.rewards)
-        print('ok')
         self.model.tensorboard.update_stats(reward_avg=avg,
                                             reward_max=max_reward, 
                                             reward_sum=sum_reward,
