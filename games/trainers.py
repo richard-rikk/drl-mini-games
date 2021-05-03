@@ -36,6 +36,7 @@ class Trainer():
         
         max_reward = max(self.rewards)
         sum_reward = np.sum(self.rewards)
+        print('ok')
         self.model.tensorboard.update_stats(reward_avg=avg,
                                             reward_max=max_reward, 
                                             reward_sum=sum_reward,
@@ -56,10 +57,9 @@ class DQNTrainer(Trainer):
 
     def train_model(self, episode=10_000) -> None:
         self.show_log_info()
-
+        self.rewards  = []
         for _ in tqdm(range(episode)):
             done                   = False
-            self.rewards           = []
             self.current_state     = self.env.reset()
             self.episode_step_cnt  = 0
             score                  = 0
@@ -74,6 +74,7 @@ class DQNTrainer(Trainer):
                 self.current_state = state
                 score += reward
             
+            self.rewards.append(score)
             avg_score = np.mean(self.rewards[-100:])
             self.update_model(epsilon=self.epsilon, avg=avg_score)
 
